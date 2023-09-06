@@ -1,0 +1,36 @@
+image:
+  name: harbor.fuchuang.tech/base-img/fedbase:v2
+
+before_script:
+  - source ~/.bashrc
+  - npm config set registry  https://maven.fuchuang-auto.com/repository/npm-group/
+
+cache:
+  paths:
+    - node_modules/
+    - dist
+
+stages:
+  - Install
+  - Build
+  - Publish
+
+install:
+  stage: Install
+  script:
+    - npm i
+
+build:
+  stage: Build
+  script:
+    - npm run build
+
+notify:
+  stage: Publish
+  only:
+    refs:
+      - master
+    changes:
+      - package.json
+  script:
+    - sh ./notification.sh  ${CI_COMMIT_REF_SLUG} ${CI_COMMIT_SHA:0:8}
